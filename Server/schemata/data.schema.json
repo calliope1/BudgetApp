@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [ "id", "amount", "description", "date" ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-fA-F0-9]+$"
+      },
+      "amount": {
+        "type": "number",
+        "minimum": 0
+      },
+      "description": {
+        "type": "string"
+      },
+      "date": {
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "additionalProperties": false
+  }
+}
