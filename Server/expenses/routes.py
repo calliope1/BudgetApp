@@ -8,10 +8,12 @@ import string
 import expenses.id_factory as eif
 from datetime import datetime
 
+# GET
 def get_expenses():
     data = sd.load_data()
     return jsonify(data), 200
 
+# POST
 def add_expense(request):
     signature = request.headers.get('X-Signature', '')
     body = request.get_data()  # raw bytes
@@ -40,6 +42,7 @@ def add_expense(request):
     sd.save_data(data)
     return jsonify({'status': 'ok'}), 201
 
+# PATCH
 def patch_expense(request, expense_id):
     signature = request.headers.get('X-Signature', '')
     body = request.get_data()
@@ -76,6 +79,7 @@ def patch_expense(request, expense_id):
     sd.save_data(data)
     return jsonify({'status': 'Expense updated', 'expense': expense}), 200
 
+# DELETE
 def delete_expense(request, expense_id):
     signature = request.headers.get('X-Signature', '')
     body = request.get_data()
@@ -90,12 +94,20 @@ def delete_expense(request, expense_id):
     except Exception as e:
         return jsonify({'error': 'Invalid payload', 'details': str(e)}), 400
 
+    try:
+        delete_id = str(payload['id'])
+    except Exception as e:
+        return jsonify({'error': 'Invalid payload', 'details': str(e)}), 400
+
+    if delete_id != expense_id:
+        return jsonify({'error': 'Argument misaligned', 'details': f'expense id must match payload "id". {delete_id} supplied to address {expense_id}'}), 400
+
     data = sd.load_data()
     
     expense = next((e for e in data if e.get('id') == expense_id), None)
 
     if expense == None:
-        return jsonify({'error': 'Id not found'}), 404
+        return jsonify({'error': 'Id not found'}), 406
 
     data = [item for item in data if item["id"] != expense_id]
 

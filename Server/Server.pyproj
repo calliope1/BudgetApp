@@ -36,6 +36,10 @@
     <Content Include="requirements.txt" />
     <Content Include="schemata\budget.schema.json" />
     <Content Include="schemata\data.schema.json" />
+    <Content Include="schemata\requests\budget\put.schema.json" />
+    <Content Include="schemata\requests\expenses\expense_id\delete.schema.json" />
+    <Content Include="schemata\requests\expenses\expense_id\patch.schema.json" />
+    <Content Include="schemata\requests\expenses\post.schema.json" />
     <Content Include="Server.pyproj" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +57,10 @@
     <Folder Include="data\" />
     <Folder Include="expenses\" />
     <Folder Include="budget\" />
+    <Folder Include="schemata\requests\" />
+    <Folder Include="schemata\requests\expenses\" />
+    <Folder Include="schemata\requests\expenses\expense_id\" />
+    <Folder Include="schemata\requests\budget\" />
     <Folder Include="signature\" />
     <Folder Include="schemata\" />
     <Folder Include="directories\" />

@@ -2,10 +2,12 @@ import directories.server_data as sd
 import signature.verify_signature as svs
 from flask import jsonify
 
+# GET
 def get_budget():
     data = sd.load_budget_data()
     return jsonify(data), 200
 
+# PUT
 def update_budget(request):
     signature = request.headers.get('X-Signature', '')
     body = request.get_data()
