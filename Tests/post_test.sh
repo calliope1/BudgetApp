@@ -18,3 +18,8 @@ PY
 
 echo "Using signature: $SIG"
 echo "Posting JSON: $JSON"
+
+curl -X POST "$SERVER/expenses" \
+ -H "Content-Type: application/json" \
+ -H "X-Signature: $SIG" \
+ -d "$JSON"

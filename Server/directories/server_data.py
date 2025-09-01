@@ -22,6 +22,9 @@ BUDGET_SCHEMA = f"{SCHEMATA_DIR}/{BUDGET_PREFIX}.schema.json"
 DATA_DEFAULT = []
 BUDGET_DEFAULT = {"weekly_budget":110.0}
 
+DELETED_DIR = 'deleted'
+DELETED_DATA_PATH = f"{DATA_DIR}/{DELETED_DIR}/{DATA_PREFIX}.deleted.json"
+
 def validate_storage(data_file_path, data_schema_path, default_value):
     if not os.path.exists(data_file_path):
         with open(data_file_path, 'w') as f:
@@ -62,6 +65,14 @@ def save_data(data):
 
 def save_budget_data(data):
     with open(BUDGET_PATH, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def load_deleted():
+    with open(DELETED_DATA_PATH, 'r') as f:
+        return json.load(f)
+
+def save_deleted(data):
+    with open(DELETED_DATA_PATH, 'w') as f:
         json.dump(data, f, indent=2)
 
 def id_exists(data, key):

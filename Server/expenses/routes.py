@@ -9,7 +9,7 @@ import expenses.id_factory as eif
 from datetime import datetime
 
 # GET
-def get_expenses():
+def get_expenses(request):
     data = sd.load_data()
     return jsonify(data), 200
 
@@ -38,9 +38,11 @@ def add_expense(request):
     
     unique_id = eif.create_id([amount, description, date_str, datetime.now()], data)
     
-    data.append({'id': unique_id, 'amount': amount, 'description': description, 'date': date_str})
+    expense = {'id': unique_id, 'amount': amount, 'description': description, 'date': date_str}
+
+    data.append(expense)
     sd.save_data(data)
-    return jsonify({'status': 'ok'}), 201
+    return jsonify({'status': 'ok', 'expense': expense}), 201
 
 # PATCH
 def patch_expense(request, expense_id):
@@ -108,6 +110,11 @@ def delete_expense(request, expense_id):
 
     if expense == None:
         return jsonify({'error': 'Id not found'}), 406
+
+    # Add the deleted item to data/deleted for safety
+    deleted_data = sd.load_deleted()
+    deleted_data.append(expense)
+    sd.save_deleted(deleted_data)
 
     data = [item for item in data if item["id"] != expense_id]
 

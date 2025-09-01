@@ -1,13 +1,16 @@
 #!/bin/bash
 
 # --- Configuration ---
+#SECRET="my-very-secret-key"
+#SERVER="http://127.0.0.1:5000"
+
 SECRET="my-very-secret-key"
 SERVER="http://127.0.0.1:5000"
 # ----------------------
 
 # --- Configuration ---
-JSON='{"amount":9.9,"description":"Coffee","date":"2025-08-28"}'
-ID="ba4abebc700f51a33a5db1f0a951578a"
+JSON='{"amount":110.0,"date":"2025-08-23","description":"TestTwo"}'
+ID="942a68e8b344731532281cdc00a7e88f"
 # ----------------------
 
 # Compute HMAC-SHA256 signature with Python

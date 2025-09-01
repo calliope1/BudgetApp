@@ -28,7 +28,7 @@ def add_expense():
 
 @app.route('/expenses', methods=['GET'])
 def get_expenses():
-    return er.get_expenses()
+    return er.get_expenses(request)
 
 #@app.route('/expenses', methods=['PUT'])
 
