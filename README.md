@@ -1,7 +1,11 @@
 This is a simple server-based budgeting app. The app (`/src/app`) is an Android app that gives everyone that connects to the app access to a shared pool of expenses which are automatically tallied for that week (week starting Monday) and deducted from a weekly budget. Users may add, edit, or delete entries. This is controlled by a Python Flask server (`/src/server`) that uses a shared secret to grant writing permissions to the server.
 
 # App
-The app is quite intuitive, but you will need to build it.
+The app is quite intuitive, but you will need to build it from the Kotlin files to obtain an APK.
+
+<div align="center">
+  <img src="https://cr638.user.srcf.net/files/budgetapp/budget_app_bordered.jpg" alt="Budget App main screen" width=300>
+</div>
 
 ## Building
 Be sure to create a `local.properties` file with the following:
@@ -25,7 +29,7 @@ This app was built extremely quickly with heavy help from AI; I think I have spe
 * Additional languages
 * Editing server url
 * Editing shared secret
-These shouldn't be hard to implement, but I'm fairly happy with where the project is at for the moment, so I won't be adding these features any time soon. The only major update that I would consider is editing the server and app so that expenses are loaded per day, and then making it so that the app only loads expenses within a given week (swapping to different weeks by swiping left/right).
+These shouldn't be hard to implement, but I'm fairly happy with where the project is at for the moment, so I won't be adding these features any time soon. The only major update that I would consider is editing the server and app so that expenses are loaded per day, and then making it so that the app only loads expenses within a given week (swapping to different weeks by swiping left/right). In particular, the former would allow me to distribute a pre-compiled APK.
 
 # Server
 
