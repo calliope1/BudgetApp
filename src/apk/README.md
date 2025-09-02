@@ -1,0 +1,1 @@
+This is an APK for the app that will use the server url "http://127.0.0.1:5000" and the shared secret "my-very-secret-key". With this you can install the app and even use it on a local network running the server.
