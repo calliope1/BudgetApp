@@ -1,7 +1,7 @@
 This is a simple server-based budgeting app. The app (`/src/app`) is an Android app that gives everyone that connects to the app access to a shared pool of expenses which are automatically tallied for that week (week starting Monday) and deducted from a weekly budget. Users may add, edit, or delete entries. This is controlled by a Python Flask server (`/src/server`) that uses a shared secret to grant writing permissions to the server.
 
 # App
-The app is quite intuitive, but you will need to build it from the Kotlin files to obtain an APK.
+The app is quite intuitive, but you will need to build it from the Kotlin files to obtain an APK. The apk file found in this repo (`/src/apk/app.apk`) will compile, but it communicates to `http://127.0.0.1:5000` with secret `my-very-secret-key`, so it will only work on a local network server using that secret.
 
 <div align="center">
   <img src="https://cr638.user.srcf.net/files/budgetapp/budget_app_bordered.jpg" alt="Budget App main screen" width=300>
