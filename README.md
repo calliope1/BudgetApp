@@ -1,8 +1,25 @@
 This is a simple server-based budgeting app. The app (`/src/app`) is an Android app that gives everyone that connects to the app access to a shared pool of expenses which are automatically tallied for that week (week starting Monday) and deducted from a weekly budget. Users may add, edit, or delete entries. This is controlled by a Python Flask server (`/src/server`) that uses a shared secret to grant writing permissions to the server.
 
 # App
+The app is quite intuitive, but you will need to build it.
 
-The app is quite intuitive.
+## Building
+Be sure to create a `local.properties` file with the following:
+```properties
+SERVER_URL = "https://sever-url"
+SHARED_SECRET = "shared-secret"
+```
+replacing the server url and shared secret as appropriate. OR in `ExpenseViewModel.kt`, replace
+```Kotlin
+private val SERVER_URL = BuildConfig.SERVER_URL
+private val SHARED_SECRET = BuildConfig.SHARED_SECRET
+```
+with
+```Kotlin
+private val SERVER_URL = "https://server-url"
+private val SHARED_SECRET = "shared-secret"
+```
+These should both correspond to the server, which needs to be running for the app to work. Then build the APK and run it.
 
 Anyone that wants to can add extra features that they may feel are missing, such as:
 * Additional languages
