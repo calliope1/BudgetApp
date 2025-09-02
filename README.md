@@ -25,7 +25,7 @@ private val SHARED_SECRET = "shared-secret"
 ```
 These should both correspond to the server, which needs to be running for the app to work. Then build the APK and run it.
 
-This app was built extremely quickly with heavy help from AI; I think I have spent about eight hours total on it, most of which was spent getting to grips with the Android Studio phone emulator. I wanted something very simple (essentially [Moneyfy](https://www.moneyfy.com), my preferred budgeting app) that would have a shared pool of expenses. However, no such thing existed and so I set out to create one. Now that it functions well enough, I am releasing it. That being said, anyone that wants to can add extra features that they may feel are missing, such as:
+This app was built extremely quickly with heavy help from AI (I have no previous experience of Kotlin!); I think I have spent about eight hours total on it, most of which was spent getting to grips with the Android Studio phone emulator. I wanted something very simple (essentially [Moneyfy](https://www.moneyfy.com), my preferred budgeting app) that would have a shared pool of expenses. However, no such thing existed and so I set out to create one. Now that it functions well enough, I am releasing it. That being said, anyone that wants to can add extra features that they may feel are missing, such as:
 * Additional languages
 * Editing server url
 * Editing shared secret
@@ -56,3 +56,14 @@ Schemata for all json data files are found under `Server/schemata/requests/<suff
 ## /budget
 * `GET`: No headers required, the full json `Server/data/budget.json` is returned.
 * `PUT`: json must contain `"weekly_budget"`. If so, `Server/data/budget.json` is replaced by `{"weekly_budget": <weekly_budget>}`.
+
+# Acknowledgements
+`pig.xml` is the Pig SVG Vector in the Animal Outlined Sepia Icons collection by author Aslan. It is unedited.
+
+<div align="left">
+  <a href="https://www.svgrepo.com/svg/500133/pig">
+    <img src="https://www.svgrepo.com/show/500133/pig.svg" alt="App icon, a cartoon pig" width=200 loading="lazy">
+  </a>
+</div>
+
+`edit_icon.xml` and `delete_icon.xml` are both shared by Ananthanath A X Kalaiism under Public Domain.
