@@ -1,7 +1,21 @@
-This is the server files for a very simple budgeting app that I developed. It is designed for highly local distribution with an associated Kotlin app and uses an API to allow updating of budget items. The budget app itself then interprets these and updates the server as required. This is currently in a 'development' state, so one would need to change the secret key and server settings in order to use it as one's own api.
+This is a simple server-based budgeting app. The app (`/src/app`) is an Android app that gives everyone that connects to the app access to a shared pool of expenses which are automatically tallied for that week (week starting Monday) and deducted from a weekly budget. Users may add, edit, or delete entries. This is controlled by a Python Flask server (`/src/server`) that uses a shared secret to grant writing permissions to the server.
+
+# App
+
+The app is quite intuitive.
+
+Anyone that wants to can add extra features that they may feel are missing, such as:
+* Additional languages
+* Editing server url
+* Editing shared secret
+These shouldn't be hard to implement, but I'm fairly happy with where the project is at for the moment, so I won't be adding these features any time soon.
+
+The only major update that I would consider is editing the server and app so that expenses are loaded per day, and then making it so that the app only loads expenses within a given week (swapping to different weeks by swiping left/right).
+
+# Server
 
 ## Secrets
-In `Server/signature/verify_signature.py` there is a `SHARED_SECRET` variable that must be used to validate API requests. When requesting, include two headers (except `GET`):
+In `Server/signature/secrets.py` there is a `SHARED_SECRET` variable that must be used to validate API requests. When requesting, include two headers (except `GET`):
 * `Content-Type: application/json`
 * `X-Signature: <SIG>`, where `<SIG>` is obtained by combining hashes for `SHARED_SECRET` and the json that you are sending. This server uses Python's `hmac` and `hashlib`:
 ```Python
