@@ -10,7 +10,7 @@
 *.userosscache
 *.sln.docstates
 Server/data/*
-Server/signature/secrets.py
+secrets.py
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
