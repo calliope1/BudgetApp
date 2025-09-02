@@ -21,13 +21,11 @@ private val SHARED_SECRET = "shared-secret"
 ```
 These should both correspond to the server, which needs to be running for the app to work. Then build the APK and run it.
 
-Anyone that wants to can add extra features that they may feel are missing, such as:
+This app was built extremely quickly with heavy help from AI; I think I have spent about eight hours total on it, most of which was spent getting to grips with the Android Studio phone emulator. I wanted something very simple (essentially [Moneyfy](https://www.moneyfy.com), my preferred budgeting app) that would have a shared pool of expenses. However, no such thing existed and so I set out to create one. Now that it functions well enough, I am releasing it. That being said, anyone that wants to can add extra features that they may feel are missing, such as:
 * Additional languages
 * Editing server url
 * Editing shared secret
-These shouldn't be hard to implement, but I'm fairly happy with where the project is at for the moment, so I won't be adding these features any time soon.
-
-The only major update that I would consider is editing the server and app so that expenses are loaded per day, and then making it so that the app only loads expenses within a given week (swapping to different weeks by swiping left/right).
+These shouldn't be hard to implement, but I'm fairly happy with where the project is at for the moment, so I won't be adding these features any time soon. The only major update that I would consider is editing the server and app so that expenses are loaded per day, and then making it so that the app only loads expenses within a given week (swapping to different weeks by swiping left/right).
 
 # Server
 
