@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Server", "Server\Server.pyproj", "{4771EDC3-C09E-431F-B2AE-2015CE31B5F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{E9EAD6EE-15E2-404F-9939-AACA3640201B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{E9EAD6EE-15E2-404F-9939-AACA3640201B}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "src", "src\src.pyproj", "{706C2DB4-847A-4BAB-A06E-7847140A16CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,12 +13,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4771EDC3-C09E-431F-B2AE-2015CE31B5F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4771EDC3-C09E-431F-B2AE-2015CE31B5F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9EAD6EE-15E2-404F-9939-AACA3640201B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E9EAD6EE-15E2-404F-9939-AACA3640201B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9EAD6EE-15E2-404F-9939-AACA3640201B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9EAD6EE-15E2-404F-9939-AACA3640201B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{706C2DB4-847A-4BAB-A06E-7847140A16CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{706C2DB4-847A-4BAB-A06E-7847140A16CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

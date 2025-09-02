@@ -1,7 +1,9 @@
 import hmac
 import hashlib
 
-SHARED_SECRET = b'my-very-secret-key'
+from signature.secrets import SHARED_SECRET
+
+#SHARED_SECRET = b'my-very-secret-key'
 
 def verify_signature(body_bytes, signature_hex):
     # compute HMAC-SHA256 and compare hex

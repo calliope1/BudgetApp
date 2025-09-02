@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <!-- Left: description + date stacked vertically and allowed to wrap -->
+    <LinearLayout
+        android:id="@+id/left_block"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Description: allow wrapping -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:ellipsize="none"
+            android:maxLines="4"
+            android:text="Description goes here" />
+
+        <!-- Date: smaller, below description -->
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:paddingTop="2dp"
+            android:text="2025-08-28" />
+
+    </LinearLayout>
+
+    <!-- Right: amount (bold) then edit/delete buttons -->
+    <LinearLayout
+        android:id="@+id/right_block"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Amount (bold) -->
+        <TextView
+            android:id="@+id/tvAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginEnd="8dp"
+            android:text="£0.00" />
+
+    <!-- Main text: amount — description — date -->
+    <!--
+    <TextView
+        android:id="@+id/tvExpenseLine"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="16sp"
+        android:ellipsize="end"
+        android:maxLines="1" />
+    -->
+
+        <!-- Edit button -->
+
+        <!-- Delete button -->
+        <Button
+            android:id="@+id/btnEdit"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:minWidth="24dp"
+            android:minHeight="24dp"
+            app:icon="@drawable/edit_icon"
+            app:iconPadding="0dp"
+            app:iconSize="24dp" />
+
+        <Button
+            android:id="@+id/btnDelete"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:minWidth="24dp"
+            android:minHeight="24dp"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:icon="@drawable/delete_icon" />
+
+    </LinearLayout>
+
+</LinearLayout>

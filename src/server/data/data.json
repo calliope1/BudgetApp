@@ -1,0 +1,80 @@
+[
+  {
+    "amount": 110.0,
+    "date": "2025-08-23",
+    "description": "TestTwo",
+    "id": "942a68e8b344731532281cdc00a7e88f"
+  },
+  {
+    "amount": 1.0,
+    "date": "2025-08-24",
+    "description": "Test",
+    "id": "0e992a693efbdec643abedb3d9f0c8eb"
+  },
+  {
+    "amount": 3.79,
+    "date": "2025-08-28",
+    "description": "Groceries",
+    "id": "00a3e0099b445d04548a45f0fead2e25"
+  },
+  {
+    "amount": 10.23,
+    "date": "2025-08-26",
+    "description": "Clipper charger and command strips",
+    "id": "ba7a20df91f649b4bb45a8b1e0bd4e33"
+  },
+  {
+    "amount": 4.98,
+    "date": "2025-08-25",
+    "description": "Spirit level",
+    "id": "c4926ea87e186e19f51482fd5e66765d"
+  },
+  {
+    "amount": 4.0,
+    "date": "2025-08-29",
+    "description": "Lara bus",
+    "id": "439eea70c480a5744f8eb125eb90d44b"
+  },
+  {
+    "amount": 7.0,
+    "date": "2025-08-29",
+    "description": "Lara tea and cakes",
+    "id": "18f65687e2300c0d42742caa075ce769"
+  },
+  {
+    "amount": 8.4,
+    "date": "2025-08-26",
+    "description": "Lunch with Dylan",
+    "id": "a43cccceeb02adcc58568860f34d1f49"
+  },
+  {
+    "amount": 2.89,
+    "description": "Bread",
+    "date": "2025-08-31",
+    "id": "12836eee8d1719b77525b6a326b8f261"
+  },
+  {
+    "id": "2fe4d74a746fcd38caa702c3de4d078b",
+    "amount": 42.12,
+    "description": "Sainsburys",
+    "date": "2025-08-31"
+  },
+  {
+    "id": "d83ec64009cb0b02dd31f2d790143b6f",
+    "amount": 9.9,
+    "description": "Mailing keys",
+    "date": "2025-09-01"
+  },
+  {
+    "id": "f9ee8798d40d5158db8433224de22a62",
+    "amount": 1.49,
+    "description": "Bread",
+    "date": "2025-09-01"
+  },
+  {
+    "id": "10c4d7eb15655c13a49bb71ade562d53",
+    "amount": 2.1,
+    "description": "Tofu",
+    "date": "2025-09-01"
+  }
+]
