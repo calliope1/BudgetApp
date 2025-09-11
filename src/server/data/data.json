@@ -76,5 +76,23 @@
     "amount": 2.1,
     "description": "Tofu",
     "date": "2025-09-01"
+  },
+  {
+    "id": "f83396eaf60749258ed7ee9f5c3a77fb",
+    "amount": 3.5,
+    "description": "Coffee",
+    "date": "2025-09-11"
+  },
+  {
+    "id": "55cfb9b78a51a4a5d3c4dea37eed9cb4",
+    "amount": 3.5,
+    "description": "Coffee",
+    "date": "2025-09-11"
+  },
+  {
+    "id": "8f5eb5434536352f485920068a65cadb",
+    "amount": 3.5,
+    "description": "Coffee",
+    "date": "2025-09-12"
   }
 ]

@@ -3,7 +3,7 @@
 # --- Configuration ---
 SECRET="my-very-secret-key"
 SERVER="http://127.0.0.1:5000"
-JSON='{"amount":3.5,"description":"Coffee","date":"2025-08-28"}'
+JSON='{"amount":3.5,"description":"Coffee","date":"2025-09-12"}'
 # ----------------------
 
 # Compute HMAC-SHA256 signature with Python

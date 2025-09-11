@@ -24,7 +24,7 @@ echo "Using signature: $SIG"
 echo "Patching JSON: $JSON"
 echo "Patching ID: $ID"
 
-curl -X DELETE "$SERVER/expenses/$ID" \
+curl -X DELETE "$SERVER/expenses/id/$ID" \
  -H "Content-Type: application/json" \
  -H "X-Signature: $SIG" \
  -d "$JSON"

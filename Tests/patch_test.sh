@@ -27,7 +27,7 @@ echo "Using signature: $SIG"
 echo "Patching JSON: $JSON"
 echo "Patching ID: $ID"
 
-curl -X PATCH "$SERVER/expenses/$ID" \
+curl -X PATCH "$SERVER/expenses/id/$ID" \
  -H "Content-Type: application/json" \
  -H "X-Signature: $SIG" \
  -d "$JSON"

@@ -22,21 +22,47 @@ app = Flask(__name__)
 
 sd.ensure_storage()
 
+if not er.ENCRYT:
+    print("WARNING: Encryption not required to post. Proceed?")
+    response = 'invalid-string'
+    while response not in ['y', 'yes', 'n', 'no', '']:
+        response = input("[Y]es/[N]o (default no): ").lower()
+        if response in ['', 'n', 'no']:
+            quit()
+
+
 @app.route('/expenses', methods=['POST'])
 def add_expense():
+    """Post expense to the server"""
     return er.add_expense(request)
 
 @app.route('/expenses', methods=['GET'])
 def get_expenses():
+    """Get all expenses, or filter by query parameters
+
+    See expenses.routes.get_expenses
+
+    Arguments
+    ---------
+    start_date
+    end_date
+    week_commencing
+    week_containing
+    """
+
     return er.get_expenses(request)
+
+@app.route('/expenses/this_week', methods=['GET'])
+def get_expenses_this_week():
+    return er.get_expenses(request, this_week = True)
 
 #@app.route('/expenses', methods=['PUT'])
 
-@app.route('/expenses/<expense_id>', methods=['PATCH'])
+@app.route('/expenses/id/<expense_id>', methods=['PATCH'])
 def patch_expense(expense_id):
     return er.patch_expense(request, expense_id)
 
-@app.route('/expenses/<expense_id>', methods=['DELETE'])
+@app.route('/expenses/id/<expense_id>', methods=['DELETE'])
 def delete_expense(expense_id):
     return er.delete_expense(request, expense_id)
 

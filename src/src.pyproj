@@ -4,13 +4,15 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>706c2db4-847a-4bab-a06e-7847140a16ca</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src.py</StartupFile>
+    <StartupFile>server\app.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>src</Name>
     <RootNamespace>src</RootNamespace>
+    <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
+    <InterpreterId>MSBuild|b-env|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -510,6 +512,8 @@
     <Folder Include="server\budget\" />
     <Folder Include="server\budget\__pycache__\" />
     <Folder Include="server\data\" />
+    <Folder Include="server\data\expenses\" />
+    <Folder Include="server\data\utils\" />
     <Folder Include="server\directories\" />
     <Folder Include="server\directories\__pycache__\" />
     <Folder Include="server\env\" />
@@ -1553,6 +1557,14 @@
     <Content Include="server\budget\__pycache__\__init__.cpython-38.pyc" />
     <Content Include="server\data\budget.json" />
     <Content Include="server\data\data.json" />
+    <Content Include="server\data\expenses\data-2025-08-23.json" />
+    <Content Include="server\data\expenses\data-2025-08-24.json" />
+    <Content Include="server\data\expenses\data-2025-08-25.json" />
+    <Content Include="server\data\expenses\data-2025-08-26.json" />
+    <Content Include="server\data\expenses\data-2025-08-28.json" />
+    <Content Include="server\data\expenses\data-2025-08-29.json" />
+    <Content Include="server\data\expenses\data-2025-08-31.json" />
+    <Content Include="server\data\expenses\data-2025-09-01.json" />
     <Content Include="server\directories\__pycache__\server_data.cpython-38.pyc" />
     <Content Include="server\directories\__pycache__\__init__.cpython-38.pyc" />
     <Content Include="server\env\Lib\site-packages\attrs-25.3.0.dist-info\INSTALLER" />
@@ -2438,6 +2450,9 @@
     <Compile Include="server\app.py" />
     <Compile Include="server\budget\routes.py" />
     <Compile Include="server\budget\__init__.py" />
+    <Compile Include="server\data\utils\date_management.py" />
+    <Compile Include="server\data\utils\utils.py" />
+    <Compile Include="server\data\utils\__init__.py" />
     <Compile Include="server\directories\server_data.py" />
     <Compile Include="server\directories\__init__.py" />
     <Compile Include="server\env\Lib\site-packages\attrs\converters.py" />
@@ -3112,6 +3127,26 @@
     <Compile Include="server\signature\secrets.py" />
     <Compile Include="server\signature\verify_signature.py" />
     <Compile Include="server\signature\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="b-env\">
+      <Id>b-env</Id>
+      <Version>3.11</Version>
+      <Description>b-env (Python 3.11 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+    <Interpreter Include="server\env\Scripts\">
+      <Id>Scripts</Id>
+      <Version>3.9</Version>
+      <Description>env</Description>
+      <InterpreterPath>python.exe</InterpreterPath>
+      <WindowsInterpreterPath>pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

@@ -7,8 +7,8 @@ import json
 import jsonschema
 import datetime
 
-DATA_DIR = 'data'
-SCHEMATA_DIR = 'schemata'
+DATA_DIR = 'server/data'
+SCHEMATA_DIR = 'server/schemata'
 
 DATA_PREFIX = 'data'
 BUDGET_PREFIX = 'budget'
@@ -24,6 +24,13 @@ BUDGET_DEFAULT = {"weekly_budget":110.0}
 
 DELETED_DIR = 'deleted'
 DELETED_DATA_PATH = f"{DATA_DIR}/{DELETED_DIR}/{DATA_PREFIX}.deleted.json"
+
+def date_to_isostring(d):
+    """Returns YYYY-MM-DD string from date d"""
+    buffer_year = '' + ('0' if d.year < 10 else '') + ('0' if d.year < 100 else '') + ('0' if d.year < 1000 else '')
+    buffer_month = '0' if d.month < 10 else ''
+    buffer_day = '0' if d.day < 10 else ''
+    return f"{buffer_year}{str(d.year)}-{buffer_month}{str(d.month)}-{buffer_day}{str(d.day)}"
 
 def validate_storage(data_file_path, data_schema_path, default_value):
     if not os.path.exists(data_file_path):
@@ -48,11 +55,27 @@ def validate_storage(data_file_path, data_schema_path, default_value):
             json.dump(default_value, f)
 
 def ensure_storage():
+    """Validate JSONs in data path"""
     validate_storage(DATA_PATH, DATA_SCHEMA, DATA_DEFAULT)
     validate_storage(BUDGET_PATH, BUDGET_SCHEMA, BUDGET_DEFAULT)
 
 def load_data():
+    """Loads the data file from DATA_PATH, returning as JSON"""
     with open(DATA_PATH, 'r') as f:
+        return json.load(f)
+
+def load_date_data(d):
+    """Loads data file with date d, making one if it doesn't exist, and returns JSON"""
+    if not isinstance(d, datetime.date):
+        # Throw an exception
+        return
+    date_str = date_to_isostring(d)
+    file_name = f"{DATA_DIR}/expenses/data-{date_str}.json"
+    if not os.path.exists(file_name):
+        with open(file_name, 'w') as f:
+            json.dump([], f, indent=2)
+            return []
+    with open(file_name, 'r') as f:
         return json.load(f)
 
 def load_budget_data():
@@ -62,6 +85,16 @@ def load_budget_data():
 def save_data(data):
     with open(DATA_PATH, 'w') as f:
         json.dump(data, f, indent=2)
+
+def save_date_data(data, d):
+    """Save data to appropriate file from datetime.date d"""
+    if not isinstance(d, datetime.date):
+        # Throw an exception
+        return
+    date_str = date_to_isostring(d)
+    file_name = f"{DATA_DIR}/expenses/data-{date_str}.json"
+    with open(file_name, 'w') as f:
+        json.dump(data, f, indent = 2)
 
 def save_budget_data(data):
     with open(BUDGET_PATH, 'w') as f:
@@ -77,3 +110,25 @@ def save_deleted(data):
 
 def id_exists(data, key):
     return any(entry["id"] == key for entry in data if "id" in entry)
+
+def files_exist():
+    """Returns a list of all file names in the data directory."""
+    if not os.path.exists(f"{DATA_DIR}/expenses"):
+        return []
+    return [f for f in os.listdir(f"{DATA_DIR}/expenses") if os.path.isfile(os.path.join(f"{DATA_DIR}/expenses", f))]
+
+def get_date(file_name: str):
+    """Extracts date from a file name formatted as data-<DATE>.json as a datetime.date"""
+    if file_name[0:5] != 'data-' or file_name[-5:] != '.json':
+        raise ValueError("File name must be formatted as data-<DATE>.json")
+    date_str = file_name[5:-5]
+    return datetime.date.fromisoformat(date_str)
+
+def load_files(file_names):
+    """Loads and combines data from multiple files."""
+    combined_data = []
+    for file_name in file_names:
+        with open(f"{DATA_DIR}/expenses/{file_name}", 'r') as f:
+            data = json.load(f)
+            combined_data.extend(data)
+    return combined_data
