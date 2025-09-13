@@ -55,9 +55,16 @@ def validate_storage(data_file_path, data_schema_path, default_value):
             json.dump(default_value, f)
 
 def ensure_storage():
-    """Validate JSONs in data path"""
+    """Validate JSONs in data path
+    
+    Validates the data.json and budget.json files, as well as all expenses/data-<date>.json files.
+    If any are found to be corrupt, they are backed up and replaced with DATA_DEFAULT/BUDGET_DEFAULT files.
+    If either data.json or budget.json are found to be missing, they are instantiated with DATA_DEFAULT/BUDGET_DEFAULT files.
+    """
     validate_storage(DATA_PATH, DATA_SCHEMA, DATA_DEFAULT)
     validate_storage(BUDGET_PATH, BUDGET_SCHEMA, BUDGET_DEFAULT)
+    for filename in files_exist():
+        validate_storage(f"{DATA_DIR}/expenses/{filename}", DATA_SCHEMA, DATA_DEFAULT)
 
 def load_data():
     """Loads the data file from DATA_PATH, returning as JSON"""

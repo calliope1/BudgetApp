@@ -89,6 +89,27 @@ def get_expenses(request, this_week = False):
 
 # POST
 def add_expense(request):
+    """Post expense to the server
+
+    Parameters
+    ----------
+    request : Flask.request
+
+    Headers
+    -------
+    X-Signature
+        Encoded signature that must match the provided data after an hmac encoding
+        See verify_signature.verify_signature
+
+    Data
+    ----
+    JSON
+        JSON containing at least 'amount', 'description', and 'date' keys
+        amount : float
+        description : str
+        date : str
+            In YYYY-MM-DD format
+    """
     signature = request.headers.get('X-Signature', '')
     body = request.get_data()  # raw bytes
 
@@ -183,12 +204,19 @@ def delete_expense(request, expense_id):
     if delete_id != expense_id:
         return jsonify({'error': 'Argument misaligned', 'details': f'expense id must match payload "id". {delete_id} supplied to address {expense_id}'}), 400
 
+    daily_data = sd.load_date_data(payload['date'])
     data = sd.load_data()
     
-    expense = next((e for e in data if e.get('id') == expense_id), None)
 
-    if expense == None:
+    expense = next((e for e in data if e.get('id') == expense_id), None)
+    expense_daily = next((e for e in daily_data if e.get('id') == expense_id), None)
+
+    if expense == None and expense_daily == None:
         return jsonify({'error': 'Id not found'}), 406
+    elif expense == None:
+        return jsonify({'error': 'Id only found in daily data, not full data'}), 406
+    elif expense_daily == None:
+        return jsonify({'error': 'Id only found in full data, not daily data'}), 406
 
     # Add the deleted item to data/deleted for safety
     deleted_data = sd.load_deleted()
@@ -196,6 +224,8 @@ def delete_expense(request, expense_id):
     sd.save_deleted(deleted_data)
 
     data = [item for item in data if item["id"] != expense_id]
+    daily_data = [item for item in daily_data if item["id"] != expense_id]
 
     sd.save_data(data)
+    sd.save_date_data(payload['date'])
     return jsonify({'status': 'Expense deleted', 'expense': expense}), 200

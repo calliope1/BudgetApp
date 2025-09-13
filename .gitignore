@@ -14,10 +14,18 @@ secrets.py
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+# python environments
 b-env/
 env/
+# data files
 src/server/data/*.json
 src/server/data/expenses/*.json
+# sphinx
+docs/server/source/*
+docs/server/makefile.bat
+docs/server/Makefile
+docs/server/make.bat
+docs
 
 # Gradle files
 *.iml
