@@ -9,22 +9,27 @@
         android:id="@+id/etAmount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Amount (£)"
+        android:autofillHints=""
+        android:minHeight="48dp"
+        android:hint="@string/amount"
         android:inputType="numberDecimal" />
 
     <EditText
         android:id="@+id/etDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:minHeight="48dp"
         android:layout_marginTop="16dp"
-        android:hint="Description"
+        android:hint="@string/description"
         android:inputType="textCapSentences" />
 
     <Button
         android:id="@+id/btnChooseDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginTop="16dp"
-        android:text="Choose Date" />
+        android:text="@string/choose_date" />
 
 </LinearLayout>

@@ -95,4 +95,6 @@ dependencies {
     // Coroutines (already there in your original code)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") // Or latest
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3") // Or latest
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.0")
 }

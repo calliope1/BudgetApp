@@ -14,7 +14,7 @@ class ExpenseAdapter(
     private var items: MutableList<Expense> = mutableListOf(),
     private val onEdit: (Expense) -> Unit,
     private val onDelete: (Expense) -> Unit
-) : ArrayAdapter<Expense>(ctx, 0, items) {
+    ) : ArrayAdapter<Expense>(ctx, 0, items) {
 
     private val inflater = LayoutInflater.from(ctx)
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE

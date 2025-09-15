@@ -38,6 +38,12 @@ class ExpenseViewModel : ViewModel() {
 
     private val SERVER_URL = BuildConfig.SERVER_URL
     private val SHARED_SECRET = BuildConfig.SHARED_SECRET
+    private val weekCache = mutableMapOf<Int, MutableLiveData<WeekUiState>>()
+    private val cacheRadius = 2
+    private var currentCenterOffset: Int = 0
+    private val loadingOffsets: MutableSet<Int> = Collections.synchronizedSet(mutableSetOf())
+
+    private var weeklyBudgetCached: Double? = null
     private var weeklyBudget: Double = 110.0
     private val _uiState = MutableLiveData<UiState>()
     val uiState: LiveData<UiState> = _uiState
@@ -50,6 +56,119 @@ class ExpenseViewModel : ViewModel() {
     init {
         fetchExpenses()
     }
+
+    // UI state for a week
+    sealed class WeekUiState {
+        object Loading : WeekUiState()
+        data class Success(
+            val weekStart: java.time.LocalDate,
+            val expenses: List<Expense>,
+            val weeklyTotal: Double,
+            val remainingBudget: Double) : WeekUiState()
+        data class Error(val weekStart: java.time.LocalDate, val message: String) : WeekUiState()
+    }
+
+    fun setCenterOffset(offset: Int) {
+        currentCenterOffset = offset
+        for (o in (offset - cacheRadius)..(offset + cacheRadius)) {
+            preload(o)
+        }
+    }
+
+
+    // compute monday (week start) for current date then plus offset weeks
+    private fun weekStartForOffset(offset: Int): java.time.LocalDate {
+        val today = java.time.LocalDate.now()
+        val dow = today.dayOfWeek.value // 1..7, Monday=1
+        val monday = today.minusDays((dow - 1).toLong())
+        return monday.plusWeeks(offset.toLong())
+    }
+
+    fun getWeekLiveData(offset: Int): LiveData<WeekUiState> {
+        return weekCache.getOrPut(offset) {
+            val live = MutableLiveData<WeekUiState>()
+            loadWeek(offset, live)
+            live
+        }
+    }
+
+    private fun preload(offset: Int) {
+        if (kotlin.math.abs(offset - currentCenterOffset) > cacheRadius) return
+        if (weekCache.containsKey(offset) || loadingOffsets.contains(offset)) return
+        loadingOffsets.add(offset)
+        val live = MutableLiveData<WeekUiState>()
+        weekCache[offset] = live
+        loadWeek(offset, live)
+    }
+
+    private fun loadWeek(offset: Int, live: MutableLiveData<WeekUiState>) {
+        live.postValue(WeekUiState.Loading)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (weeklyBudgetCached == null) {
+                    weeklyBudgetCached = fetchBudget() // your existing fetchBudget()
+                }
+                val weekStart = weekStartForOffset(offset) // your function to compute Monday+offset
+                val expenses = fetchWeekFromServer(weekStart) // your existing fetch function
+                // compute totals
+                val weeklyTotal = expenses.sumOf { it.amount }
+                val remaining = (weeklyBudgetCached ?: 0.0) - weeklyTotal
+                live.postValue(WeekUiState.Success(weekStart, expenses, weeklyTotal, remaining))
+
+                // preload neighbors for smooth UX
+                preload(offset - 1)
+                preload(offset + 1)
+            } catch (e: Exception) {
+                live.postValue(WeekUiState.Error(weekStartForOffset(offset), e.message ?: "Error"))
+            } finally {
+                loadingOffsets.remove(offset)
+            }
+
+            preload(offset - 1)
+            preload(offset + 1)
+        }
+    }
+
+    fun refreshWeek(offset: Int) {
+//        weekCache.remove(offset)
+//        val live = MutableLiveData<WeekUiState>()
+//        weekCache[offset] = live
+//        loadWeek(offset, live)
+        val live = getWeekLiveData(offset) as MutableLiveData<WeekUiState>
+        loadWeek(offset, live)
+    }
+
+    // fetch budget from /budget endpoint (reuse your OkHttp client)
+    private suspend fun fetchBudget(): Double = withContext(Dispatchers.IO) {
+        val req = Request.Builder().url("$SERVER_URL/budget").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) throw IOException("Failed to load budget: ${resp.code}")
+            val body = resp.body?.string() ?: throw IOException("Empty budget response")
+            val obj = org.json.JSONObject(body)
+            obj.getDouble("weekly_budget")
+        }
+    }
+
+    // fetch week-specific expenses from API (assumes /expenses?week_commencing=YYYY-MM-DD)
+    private suspend fun fetchWeekFromServer(weekStart: java.time.LocalDate): List<Expense> = withContext(Dispatchers.IO) {
+        val weekStr = weekStart.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+        val url = "$SERVER_URL/expenses?week_commencing=$weekStr"
+        val req = Request.Builder().url(url).get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) throw IOException("Failed to load week: ${resp.code}")
+            val body = resp.body?.string() ?: "[]"
+            val arr = org.json.JSONArray(body)
+            val out = mutableListOf<Expense>()
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                val id = if (o.has("id")) o.optString("id") else null
+                out.add(Expense(id, o.getDouble("amount"), o.getString("description"), o.getString("date")))
+            }
+            out
+        }
+    }
+
+
 
     private suspend fun fetchWeeklyBudgetFromServer(): Double = withContext(Dispatchers.IO) {
         val req = Request.Builder()
@@ -155,20 +274,42 @@ class ExpenseViewModel : ViewModel() {
         }
     }
 
-    fun updateExpense(expenseId: String, amount: Double, description: String, date: String) {
-        viewModelScope.launch {
+    fun updateExpense(expenseId: String, amount: Double, description: String, date: String, offset: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                patchExpenseToServer(expenseId, amount, description, date)
-                _toastMessage.postValue("Expense updated successfully")
-                fetchExpenses()
+                val jsonObject = org.json.JSONObject().apply {
+                    put("amount", amount)
+                    put("description", description)
+                    put("date", date)
+                }
+                val jsonString = jsonObject.toString()
+                val signature = hmacHex(SHARED_SECRET, jsonString) // keep existing HMAC helper
+                val body = jsonString.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                val url = "$SERVER_URL/expenses/id/${java.net.URLEncoder.encode(expenseId, "UTF-8")}"
+                val req = Request.Builder()
+                    .url(url)
+                    .method("PATCH", body)
+                    .addHeader("X-Signature", signature)
+                    .addHeader("Content-Type", "application/json; charset=utf-8")
+                    .build()
+
+                client.newCall(req).execute().use { resp ->
+                    if (!resp.isSuccessful) throw IOException("PATCH failed: ${resp.code} - ${resp.body?.string()}")
+                }
+                Log.d("UpdateExpense", "Tried to update expense $expenseId with json $jsonString")
+
+                // reload same LiveData instance
+                val live = getWeekLiveData(offset) as MutableLiveData<WeekUiState>
+                loadWeek(offset, live)
             } catch (e: Exception) {
-                Log.e("PATCH_ERROR","Exception: ${e.message}")
-                _toastMessage.postValue("Error updating expense: ${e.message}")
+                val live = weekCache[offset]
+                live?.postValue(WeekUiState.Error(weekStartForOffset(offset), e.message ?: "Update failed"))
             }
+            Log.d("UpdateExpense", "Updated expense. TODO: Better debug.")
         }
     }
 
-    private suspend fun patchExpenseToServer(expenseId: String, amount: Double, description: String, date: String) = withContext(Dispatchers.IO) {
+    private suspend fun patchExpenseToServer(expenseId: String, amount: Double, description: String, date: String, offset: Int) = withContext(Dispatchers.IO) {
         val jsonObject = JSONObject().apply {
             put("amount", amount)
             put("description", description)
@@ -179,10 +320,10 @@ class ExpenseViewModel : ViewModel() {
         val signature = hmacHex(SHARED_SECRET, jsonString)
         Log.d("PATCH_DEBUG","SIG: $signature")
 
-        Log.d("PATCH_DEBUG", "URL: $SERVER_URL/expenses/${expenseId}")
+        Log.d("PATCH_DEBUG", "URL: $SERVER_URL/expenses/id/${expenseId}")
 
         val req = Request.Builder()
-            .url("$SERVER_URL/expenses/${expenseId}")
+            .url("$SERVER_URL/expenses/id/${expenseId}")
             .method("PATCH",body)
             .addHeader("X-Signature", signature)
             .build()
@@ -197,24 +338,47 @@ class ExpenseViewModel : ViewModel() {
                 throw IOException("Failed to update expense: ${resp.code} - $errorBody")
             }
         }
+        refreshWeek(offset)
     }
 
-    fun deleteExpense(expenseId: String?) {
-        if (expenseId == null) {
-            throw Exception("Expense has no id")
-        }
-        viewModelScope.launch {
+    fun deleteExpense(expenseId: String?, offset: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                deleteExpenseToServer(expenseId)
-                _toastMessage.postValue("Expense deleted")
-                fetchExpenses()
+                val jsonObject = org.json.JSONObject().apply {
+                    put("id", expenseId)
+                }
+                val jsonString = jsonObject.toString()
+                val signature = hmacHex(SHARED_SECRET, jsonString) // keep existing HMAC helper
+                val body =
+                    jsonString.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                val url = "$SERVER_URL/expenses/id/$expenseId"
+                val req = Request.Builder()
+                    .url(url)
+                    .method("DELETE", body)
+                    .addHeader("X-Signature", signature)
+                    .addHeader("Content-Type", "application/json; charset=utf-8")
+                    .build()
+
+                client.newCall(req).execute().use { resp ->
+                    if (!resp.isSuccessful) throw IOException("DELETE failed: ${resp.code} - ${resp.body?.string()}")
+                }
+                // After successful delete, reload this week's LiveData (same instance)
+                val live = getWeekLiveData(offset) as MutableLiveData<WeekUiState>
+                loadWeek(offset, live)
             } catch (e: Exception) {
-                _toastMessage.postValue("Error deleting expense: ${e.message}")
+                // post error into the same LiveData so UI can show feedback
+                val live = weekCache[offset]
+                live?.postValue(
+                    WeekUiState.Error(
+                        weekStartForOffset(offset),
+                        e.message ?: "Delete failed"
+                    )
+                )
             }
         }
     }
 
-    private suspend fun deleteExpenseToServer(expenseId: String) = withContext(Dispatchers.IO) {
+    private suspend fun deleteExpenseToServer(expenseId: String, offset: Int) = withContext(Dispatchers.IO) {
         val jsonObject = JSONObject().apply {
             put("id", expenseId)
         }
@@ -223,7 +387,7 @@ class ExpenseViewModel : ViewModel() {
         val signature = hmacHex(SHARED_SECRET, jsonString)
 
         val req = Request.Builder()
-            .url("$SERVER_URL/expenses/$expenseId")
+            .url("$SERVER_URL/expenses/id/$expenseId")
             .delete(body)
             .addHeader("X-Signature",signature)
             .build()
@@ -234,6 +398,7 @@ class ExpenseViewModel : ViewModel() {
                 throw IOException("Failed to delete expense: ${resp.code} - $errorBody")
             }
         }
+        refreshWeek(offset)
     }
 
 

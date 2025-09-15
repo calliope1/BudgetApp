@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Budget App</string>
+    <string name="edit">Modifier</string>
+    <string name="delete">Supprimer</string>
+    <string name="error">Erreur</string>
+    <string name="loading">Chargement…</string>
+    <string name="server_url">URL du serveur</string>
+    <string name="shared_secret">Clé secrète partagée</string>
+    <string name="save">Enregistrer</string>
+    <string name="cancel">Annuler</string>
+    <string name="amount">Montant (£)</string>
+    <string name="description">Description</string>
+    <string name="choose_date">Choisir une date</string>
+    <string name="add_expense">Ajouter une dépense</string>
+    <string name="remaining_amount">Reste : £%.2f</string>
+    <string name="spent_this_week">Dépensé cette semaine : £%.2f</string>
+    <string name="refresh">Actualiser</string>
+</resources>
