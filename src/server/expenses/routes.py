@@ -1,16 +1,11 @@
 import directories.server_data as sd
 import signature.verify_signature as svs
-import data.utils.date_management as dm
 from flask import jsonify
 import datetime
-import hashlib
-import random
-import string
 import expenses.id_factory as eif
 import datetime as dt
 from datetime import datetime
-
-ENCRYPT = True
+from config.conf import ENCRYPT
 
 # GET
 def get_expenses(request, this_week = False):
@@ -80,7 +75,7 @@ def get_expenses(request, this_week = False):
             continue
         if end_date != None and file_date > start_date:
             continue
-        if week_commencing == None or week_commencing <= file_date <= week_commencing + dt.timedelta(7):
+        if week_commencing == None or week_commencing <= file_date < week_commencing + dt.timedelta(7):
             wanted_files.append(file)
 
     data = sd.load_files(wanted_files)
@@ -110,10 +105,10 @@ def add_expense(request):
         date : str
             In YYYY-MM-DD format
     """
-    signature = request.headers.get('X-Signature', '')
     body = request.get_data()  # raw bytes
 
     if ENCRYPT:
+        signature = request.headers.get('X-Signature', '')
         if not signature:
             return jsonify({'error': 'Missing signature header'}), 400
         if not svs.verify_signature(body, signature):
@@ -125,14 +120,13 @@ def add_expense(request):
         amount = float(payload['amount'])
         description = str(payload['description'])
         date_str = str(payload['date'])  # expected YYYY-MM-DD
-        date_str = dt.date.fromisoformat(date_str)
-        date_str = sd.date_to_isostring(date_str)
-        datetime.strptime(date_str, '%Y-%m-%d')
+        datetime.strptime(date_str, '%Y-%m-%d') # Test format
+        dt_date = dt.date.fromisoformat(date_str)
     except Exception as e:
         return jsonify({'error': 'Invalid payload', 'details': str(e)}), 400
 
     full_data = sd.load_data()
-    date_data = sd.load_date_data(dt.date.fromisoformat(date_str))
+    date_data = sd.load_date_data(dt_date)
     
     unique_id = eif.create_id([amount, description, date_str, datetime.now()], full_data)
     
@@ -141,44 +135,66 @@ def add_expense(request):
     full_data.append(expense)
     date_data.append(expense)
     sd.save_data(full_data)
-    sd.save_date_data(date_data, dt.date.fromisoformat(date_str))
+    sd.save_date_data(date_data, dt_date)
     return jsonify({'status': 'ok', 'expense': expense}), 201
 
 # PATCH
 def patch_expense(request, expense_id):
-    signature = request.headers.get('X-Signature', '')
     body = request.get_data()
-
-    if not signature:
-        return jsonify({'error': 'Missing signature header'}), 400
-    if not svs.verify_signature(body, signature):
-        return jsonify({'error': 'Invalid signature'}), 403
+    
+    if ENCRYPT:
+        signature = request.headers.get('X-Signature', '')
+        if not signature:
+            return jsonify({'error': 'Missing signature header'}), 400
+        if not svs.verify_signature(body, signature):
+            return jsonify({'error': 'Invalid signature'}), 403
 
     try:
         payload = request.get_json(force=True)
     except Exception as e:
         return jsonify({'error': 'Invalid payload', 'details': str(e)}), 400
 
-    data = sd.load_data()
+    # Require id to find original expense date
+    full_data = sd.load_data()
     
-    expense = next((e for e in data if e.get('id') == expense_id), None)
+    expense = next((e for e in full_data if e.get('id') == expense_id), None)
 
     if expense == None:
-        return jsonify({'error': 'Id not found'}), 404
+        return jsonify({'error': 'Id not found in full data'}), 404
 
     try:
-        amount = float(payload['amount'])
-        description = str(payload['description'])
-        date_str = str(payload['date'])
-        datetime.strptime(date_str, '%Y-%m-%d')
+        original_date = dt.date.fromisoformat(expense['date'])
+    except Exception as e:
+        return jsonify({'error': 'Malformed expense date data', 'details': str(e), 'expense': expense}), 500
+
+    date_data = sd.load_date_data(original_date)
+
+    try:
+        new_amount = float(payload['amount'])
+        new_description = str(payload['description'])
+        new_date_str = str(payload['date'])
+        datetime.strptime(new_date_str, '%Y-%m-%d')
     except Exception as e:
         return jsonify({'error': 'Invalid payload', 'details': str(e)}), 400
 
-    expense['amount'] = amount
-    expense['description'] = description
-    expense['date'] = date_str
+    expense['amount'] = new_amount
+    expense['description'] = new_description
+    expense['date'] = new_date_str
 
-    sd.save_data(data)
+    # If date has changed, remove from old date data and load new date data
+    if new_date_str != expense['date']:
+        date_data = [item for item in date_data if item["id"] != expense_id]
+        sd.save_date_data(date_data, original_date)
+        date_data = sd.load_date_data(dt.date.fromisoformat(new_date_str))
+        date_data.append(expense)
+    else:
+        daily_expense = next((e for e in date_data if e.get('id') == expense_id), None)
+        daily_expense['amount'] = new_amount
+        daily_expense['description'] = new_description
+        daily_expense['date'] = new_date_str
+
+    sd.save_data(full_data)
+    sd.save_date_data(date_data, dt.date.fromisoformat(new_date_str))
     return jsonify({'status': 'Expense updated', 'expense': expense}), 200
 
 # DELETE
@@ -193,10 +209,6 @@ def delete_expense(request, expense_id):
 
     try:
         payload = request.get_json(force=True)
-    except Exception as e:
-        return jsonify({'error': 'Invalid payload', 'details': str(e)}), 400
-
-    try:
         delete_id = str(payload['id'])
     except Exception as e:
         return jsonify({'error': 'Invalid payload', 'details': str(e)}), 400
@@ -204,12 +216,18 @@ def delete_expense(request, expense_id):
     if delete_id != expense_id:
         return jsonify({'error': 'Argument misaligned', 'details': f'expense id must match payload "id". {delete_id} supplied to address {expense_id}'}), 400
 
-    daily_data = sd.load_date_data(payload['date'])
     data = sd.load_data()
-    
-
     expense = next((e for e in data if e.get('id') == expense_id), None)
+
+    try:
+        expense_date = dt.date.fromisoformat(expense['date'])
+    except Exception as e:
+        return jsonify({'error': 'Malformed expense date data', 'details': str(e), 'expense': expense}), 500
+
+    daily_data = sd.load_date_data(expense_date)
     expense_daily = next((e for e in daily_data if e.get('id') == expense_id), None)
+
+    # If you wanted to you could check if the two expenses are identical here
 
     if expense == None and expense_daily == None:
         return jsonify({'error': 'Id not found'}), 406
@@ -227,5 +245,5 @@ def delete_expense(request, expense_id):
     daily_data = [item for item in daily_data if item["id"] != expense_id]
 
     sd.save_data(data)
-    sd.save_date_data(payload['date'])
+    sd.save_date_data(daily_data, expense_date)
     return jsonify({'status': 'Expense deleted', 'expense': expense}), 200

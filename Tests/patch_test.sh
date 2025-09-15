@@ -9,7 +9,7 @@ SERVER="http://127.0.0.1:5000"
 # ----------------------
 
 # --- Configuration ---
-JSON='{"amount":110.0,"date":"2025-08-23","description":"TestTwo"}'
+JSON='{"amount":110.0,"date":"2025-08-24","description":"TestTwo"}'
 ID="942a68e8b344731532281cdc00a7e88f"
 # ----------------------
 

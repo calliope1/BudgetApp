@@ -1,29 +1,12 @@
-'''
+"""
 Handles server-side file reading and data validation
-'''
+"""
 
 import os
 import json
 import jsonschema
 import datetime
-
-DATA_DIR = 'server/data'
-SCHEMATA_DIR = 'server/schemata'
-
-DATA_PREFIX = 'data'
-BUDGET_PREFIX = 'budget'
-
-DATA_PATH = f"{DATA_DIR}/{DATA_PREFIX}.json"
-BUDGET_PATH = f"{DATA_DIR}/{BUDGET_PREFIX}.json"
-
-DATA_SCHEMA = f"{SCHEMATA_DIR}/{DATA_PREFIX}.schema.json"
-BUDGET_SCHEMA = f"{SCHEMATA_DIR}/{BUDGET_PREFIX}.schema.json"
-
-DATA_DEFAULT = []
-BUDGET_DEFAULT = {"weekly_budget":110.0}
-
-DELETED_DIR = 'deleted'
-DELETED_DATA_PATH = f"{DATA_DIR}/{DELETED_DIR}/{DATA_PREFIX}.deleted.json"
+from config.paths import (DATA_DIR, DATA_PATH, DATA_SCHEMA, DATA_DEFAULT, BUDGET_PATH, BUDGET_SCHEMA, BUDGET_DEFAULT, DELETED_DATA_PATH)
 
 def date_to_isostring(d):
     """Returns YYYY-MM-DD string from date d"""
@@ -108,10 +91,16 @@ def save_budget_data(data):
         json.dump(data, f, indent=2)
 
 def load_deleted():
+    if not os.path.exists(DELETED_DATA_PATH):
+        with open(DELETED_DATA_PATH, 'w') as f:
+            json.dump([], f, indent=2)
+            return []
     with open(DELETED_DATA_PATH, 'r') as f:
         return json.load(f)
 
 def save_deleted(data):
+    if not os.path.exists(f"{DATA_DIR}/deleted"):
+        os.makedirs(f"{DATA_DIR}/deleted")
     with open(DELETED_DATA_PATH, 'w') as f:
         json.dump(data, f, indent=2)
 

@@ -1,25 +1,13 @@
 # Flask server
 # app.py
+from operator import methodcaller
 from flask import Flask, request
 import directories.server_data as sd
 import budget.routes as br
 import expenses.routes as er
-#import random
-#import json
-#import expenses.id_factory as eif
-
-DATA_FILE = 'data.json'
-BUDGET_FILE = 'budget.json'
+from config.conf import (ENCRYPT, PORT)
 
 app = Flask(__name__)
-
-# with open("data/data.json", "r") as f:
-#     data = json.load(f)
-
-# data = eif.assign_ids(data, ["amount","date","description"])
-# with open("data/data.json", "w") as f:
-#     json.dump(data, f, indent=2)
-
 
 @app.route('/expenses', methods=['POST'])
 def add_expense():
@@ -68,6 +56,11 @@ def get_expenses_this_week():
 
 #@app.route('/expenses', methods=['PUT'])
 
+# Legacy
+@app.route('/expenses/<expense_id>', methods=['PATCH'])
+def patch_expense_legacy(expense_id):
+    return er.patch_expense(request, expense_id)
+
 @app.route('/expenses/id/<expense_id>', methods=['PATCH'])
 def patch_expense(expense_id):
     """Patch expense with id <expense_id> with new data
@@ -85,6 +78,11 @@ def patch_expense(expense_id):
 
     return er.patch_expense(request, expense_id)
 
+# Legacy
+@app.route('/expenses/<expense_id>', methods=['DELETE'])
+def delete_expense_legacy(expense_id):
+    return er.delete_expense(request, expense_id)
+
 @app.route('/expenses/id/<expense_id>', methods=['DELETE'])
 def delete_expense(expense_id):
     return er.delete_expense(request, expense_id)
@@ -100,7 +98,21 @@ def update_budget():
 if __name__ == '__main__':
     sd.ensure_storage()
 
-    if not er.ENCRYT:
+    if not os.path.exists('config/secrets.py'):
+        print("secrets.py not initialised. Initialise?")
+        response = 'invalid-string'
+        while response not in ['y', 'yes', 'n', 'no', '']:
+            response = input("[Y]es/[N]o (default no): ").lower()
+            if response in ['', 'n', 'no']:
+                print("Cannot begin without secrets.py. Exiting.")
+                quit()
+            elif response in ['y', 'yes']:
+                import config.init_secrets as isec
+                isec.init_secrets('config/secrets.py')
+            else:
+                print("Invalid response.")
+
+    if not ENCRYPT:
         print("WARNING: Encryption not required to post. Proceed?")
         response = 'invalid-string'
         while response not in ['y', 'yes', 'n', 'no', '']:
@@ -109,4 +121,4 @@ if __name__ == '__main__':
                 quit()
 
     # For development only. Use a proper WSGI server for production.
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=PORT, debug=True)

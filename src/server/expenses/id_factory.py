@@ -12,7 +12,8 @@ def create_id(values, data):
 
     id_attempt = hashlib.md5(combined_string.encode()).hexdigest()
 
-    while sd.id_exists(data, id_attempt):
+    # On the off chance of the id being "this_week" (should be literally 0%) or a collision, append random suffices
+    while sd.id_exists(data, id_attempt) or id_attempt == "this_week" or id_attempt == "id":
         random_suffix = ''.join(random.choices(string.ascii_letters + string.digits, k=5))
         id_attempt = f"{id_attempt}-{random_suffix}"
 

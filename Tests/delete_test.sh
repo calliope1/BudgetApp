@@ -6,8 +6,8 @@ SERVER="http://127.0.0.1:5000"
 # ----------------------
 
 # --- Configuration ---
-ID="17742899d9971401b5a211949c22c54c"
-JSON='{"id":"17742899d9971401b5a211949c22c54c"}'
+ID="942a68e8b344731532281cdc00a7e88f"
+JSON='{"id":"942a68e8b344731532281cdc00a7e88f"}'
 # ----------------------
 
 # Compute HMAC-SHA256 signature with Python
@@ -21,8 +21,8 @@ PY
 )
 
 echo "Using signature: $SIG"
-echo "Patching JSON: $JSON"
-echo "Patching ID: $ID"
+echo "Deleting with JSON: $JSON"
+echo "Deleting ID: $ID"
 
 curl -X DELETE "$SERVER/expenses/id/$ID" \
  -H "Content-Type: application/json" \
