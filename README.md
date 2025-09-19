@@ -7,8 +7,10 @@ The app is quite intuitive, but you will need to build it from the Kotlin files 
 
 There is an [Infinite Tape](https://en.wikipedia.org/wiki/Turing_machine) of weeks (starting Monday) that each total all of the expenses for their respective weeks and subtract that from the weekly budget. Swiping left or right will move to other weeks, and pressing the refresh button/pulling down will refresh the week that you're looking at, as will adding, editing, or deleting expenses. The app also (mostly) supports French (France).
 
+Not shown in the image above is the settings button, which lets you input a custom server url and shared key, so that if you want to use the app and don't feel like re-building the apk yourself (instead, use the pre-constructed one in `src/apk`).
+
 ## Building
-Be sure to create a `local.properties` file with the following:
+If you don't want to use the pre-built apk, be sure to create a `local.properties` file with the following:
 ```properties
 SERVER_URL = "https://sever-url"
 SHARED_SECRET = "shared-secret"
@@ -25,17 +27,14 @@ private val SHARED_SECRET = "shared-secret"
 ```
 These should both correspond to the server, which needs to be running for the app to work. Then build the APK and run it.
 
-This app was built extremely quickly with heavy help from AI (I have no previous experience of Kotlin!); I think I have spent about eight hours total on it, most of which was spent getting to grips with the Android Studio phone emulator. I wanted something very simple (essentially [Moneyfy](https://www.moneyfy.com), my preferred budgeting app) that would have a shared pool of expenses. However, no such thing existed and so I set out to create one. Now that it functions well enough, I am releasing it. That being said, anyone that wants to can add extra features that they may feel are missing, such as:
-* Additional languages
-* Editing server url
-* Editing shared secret
 
-These shouldn't be hard to implement, but I'm fairly happy with where the project is at for the moment, so I won't be adding these features any time soon. The only major update that I would consider is editing the server and app so that expenses are loaded per day, and then making it so that the app only loads expenses within a given week (swapping to different weeks by swiping left/right). In particular, the former would allow me to distribute a pre-compiled APK.
+## Vision
+I needed a simple budgeting app (essentially [Moneyfy](https://www.moneyfy.com), my preferred budgeting app) that would have a shared pool of expenses with multiple users. However, no such thing existed and so I set out to create one. Initially, this was done extremely quickly to serve a purpose. Now that it's become a bit more of a passion project with customisability, I am releasing it.
 
 # Server
 
 ## Secrets
-In `Server/signature/secrets.py` there is a `SHARED_SECRET` variable that must be used to validate API requests. When requesting, include two headers (except `GET`):
+In `server/config/secrets.py` there is a `SHARED_SECRET` variable that must be used to validate API requests. When requesting, include two headers (except `GET`):
 * `Content-Type: application/json`
 * `X-Signature: <SIG>`, where `<SIG>` is obtained by combining hashes for `SHARED_SECRET` and the json that you are sending. This server uses Python's `hmac` and `hashlib`:
 ```Python
