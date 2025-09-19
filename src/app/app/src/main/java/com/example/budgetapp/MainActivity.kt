@@ -1,32 +1,28 @@
 package com.example.budgetapp
 
 import android.app.DatePickerDialog
-import android.os.Build
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import androidx.activity.viewModels // Import for by viewModels()
-import androidx.annotation.RequiresApi
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.semantics.text
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 import androidx.viewpager2.widget.ViewPager2
+import com.example.budgetapp.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var tvBudget: TextView
     private lateinit var tvWeeklySpent: TextView
-    //private lateinit var listExpenses: ListView
     private lateinit var adapter: ExpenseAdapter
     private lateinit var progressBar: ProgressBar
-
     private val expenseViewModel: ExpenseViewModel by viewModels()
-
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -41,6 +37,11 @@ class MainActivity : AppCompatActivity() {
                 val position = pager.currentItem
                 val offset = position - WeekPagerAdapter.START_POS
                 expenseViewModel.refreshWeek(offset)
+                true
+            }
+            R.id.menu_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -152,7 +153,10 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Description cannot be empty", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
-                expenseViewModel.addExpense(amount, desc, chosenDate)
+                val pager = findViewById<ViewPager2>(R.id.weekPager)
+                val position = pager.currentItem
+                val offset = position - WeekPagerAdapter.START_POS
+                expenseViewModel.addExpense(amount, desc, chosenDate, offset)
             }
             .setNegativeButton("Cancel", null)
             .show()

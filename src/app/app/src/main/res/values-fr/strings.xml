@@ -16,4 +16,6 @@
     <string name="remaining_amount">Reste : £%.2f</string>
     <string name="spent_this_week">Dépensé cette semaine : £%.2f</string>
     <string name="refresh">Actualiser</string>
+    <string name="week_range">%1$s—%2$s</string>
+    <string name="settings">Paramètres</string>
 </resources>

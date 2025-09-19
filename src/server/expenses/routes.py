@@ -174,6 +174,7 @@ def patch_expense(request, expense_id):
         new_description = str(payload['description'])
         new_date_str = str(payload['date'])
         datetime.strptime(new_date_str, '%Y-%m-%d')
+        new_date = dt.date.fromisoformat(new_date_str)
     except Exception as e:
         return jsonify({'error': 'Invalid payload', 'details': str(e)}), 400
 
@@ -183,10 +184,14 @@ def patch_expense(request, expense_id):
 
     # If date has changed, remove from old date data and load new date data
     if new_date_str != expense['date']:
+        print(date_data)
         date_data = [item for item in date_data if item["id"] != expense_id]
+        print(date_data)
         sd.save_date_data(date_data, original_date)
-        date_data = sd.load_date_data(dt.date.fromisoformat(new_date_str))
+        date_data = sd.load_date_data(new_date)
+        print(date_data)
         date_data.append(expense)
+        print(date_data)
     else:
         daily_expense = next((e for e in date_data if e.get('id') == expense_id), None)
         daily_expense['amount'] = new_amount
@@ -194,7 +199,7 @@ def patch_expense(request, expense_id):
         daily_expense['date'] = new_date_str
 
     sd.save_data(full_data)
-    sd.save_date_data(date_data, dt.date.fromisoformat(new_date_str))
+    sd.save_date_data(date_data, new_date)
     return jsonify({'status': 'Expense updated', 'expense': expense}), 200
 
 # DELETE

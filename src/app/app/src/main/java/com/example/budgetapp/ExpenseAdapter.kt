@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class ExpenseAdapter(
@@ -17,7 +15,6 @@ class ExpenseAdapter(
     ) : ArrayAdapter<Expense>(ctx, 0, items) {
 
     private val inflater = LayoutInflater.from(ctx)
-    private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
     fun updateExpenses(newList: List<Expense>) {
         items.clear()

@@ -28,8 +28,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="refresh_button_tempo" />
-                            <entry key="sourceFile" value="D:\crs\Downloads\pig-svgrepo-com.svg" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="settings_svgrepo_com" />
+                            <entry key="sourceFile" value="D:\crs\Downloads\settings-svgrepo-com.svg" />
                           </map>
                         </option>
                       </PersistentState>

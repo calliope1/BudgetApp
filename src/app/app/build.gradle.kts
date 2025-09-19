@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.inappmessaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -82,6 +83,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1") // Or latest
     implementation("com.google.android.material:material:1.10.0") // Or latest
     implementation("androidx.constraintlayout:constraintlayout:2.1.4") // Or latest
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2") // Or latest
