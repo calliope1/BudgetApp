@@ -36,8 +36,15 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
     private val client = OkHttpClient()
 
     private val prefs = app.getSharedPreferences("BudgetPrefs", Context.MODE_PRIVATE)
-    private val serverUrl : String
-        get() = prefs.getString("server_url", "http://127.0.0.1:5000")!!
+    private val serverUrl: String
+        get() {
+            val url = prefs.getString("server_url", "http://127.0.0.1:5000")!!.trim()
+            return if (url.startsWith("http://") || url.startsWith("https://")) {
+                url
+            } else {
+                "https://$url"
+            }
+        }
     private val sharedSecret : String
         get() = prefs.getString("shared_secret", "")!!
     private val weekCache = mutableMapOf<Int, MutableLiveData<WeekUiState>>()
@@ -48,10 +55,8 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
     private var weeklyBudgetCached: Double? = null
     private var weeklyBudget: Double = 110.0
     private val _uiState = MutableLiveData<UiState>()
-    val uiState: LiveData<UiState> = _uiState
 
     private val _toastMessage = MutableLiveData<String?>()
-    val toastMessage: LiveData<String?> = _toastMessage
 
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
@@ -66,7 +71,8 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
             val weekStart: LocalDate,
             val expenses: List<Expense>,
             val weeklyTotal: Double,
-            val remainingBudget: Double) : WeekUiState()
+            val remainingBudget: Double
+        ) : WeekUiState()
         data class Error(val weekStart: LocalDate, val message: String) : WeekUiState()
     }
 
@@ -94,11 +100,12 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun preload(offset: Int) {
         if (kotlin.math.abs(offset - currentCenterOffset) > cacheRadius) return
-        if (weekCache.containsKey(offset) || loadingOffsets.contains(offset)) return
+        if (loadingOffsets.contains(offset)) return
+        val live = weekCache[offset]
+        if (live != null && live.value !is WeekUiState.Error) return
         loadingOffsets.add(offset)
-        val live = MutableLiveData<WeekUiState>()
-        weekCache[offset] = live
-        loadWeek(offset, live)
+        val weekLiveData = live ?: MutableLiveData<WeekUiState>().also { weekCache[offset] = it }
+        loadWeek(offset, weekLiveData)
     }
 
     private fun loadWeek(offset: Int, live: MutableLiveData<WeekUiState>, manual: Boolean = false) {
@@ -108,11 +115,10 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (weeklyBudgetCached == null) {
-                    weeklyBudgetCached = fetchBudget() // your existing fetchBudget()
+                    weeklyBudgetCached = fetchBudget()
                 }
-                val weekStart = weekStartForOffset(offset) // your function to compute Monday+offset
-                val expenses = fetchWeekFromServer(weekStart) // your existing fetch function
-                // compute totals
+                val weekStart = weekStartForOffset(offset)
+                val expenses = fetchWeekFromServer(weekStart)
                 val weeklyTotal = expenses.sumOf { it.amount }
                 val remaining = (weeklyBudgetCached ?: 0.0) - weeklyTotal
                 live.postValue(WeekUiState.Success(weekStart, expenses, weeklyTotal, remaining))
@@ -132,15 +138,12 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun refreshWeek(offset: Int, manual: Boolean = false) {
-//        weekCache.remove(offset)
-//        val live = MutableLiveData<WeekUiState>()
-//        weekCache[offset] = live
-//        loadWeek(offset, live)
         val live = getWeekLiveData(offset) as MutableLiveData<WeekUiState>
         loadWeek(offset, live, manual)
     }
-
-    // fetch budget from /budget endpoint (reuse your OkHttp client)
+    fun refreshCurrentWeek(manual: Boolean = false) {
+        refreshWeek(currentCenterOffset, manual)
+    }
     private suspend fun fetchBudget(): Double = withContext(Dispatchers.IO) {
         val req = Request.Builder().url("$serverUrl/budget").get().build()
         client.newCall(req).execute().use { resp ->
@@ -150,8 +153,6 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
             obj.getDouble("weekly_budget")
         }
     }
-
-    // fetch week-specific expenses from API (assumes /expenses?week_commencing=YYYY-MM-DD)
     private suspend fun fetchWeekFromServer(weekStart: LocalDate): List<Expense> = withContext(Dispatchers.IO) {
         val weekStr = weekStart.format(DateTimeFormatter.ISO_LOCAL_DATE)
         val url = "$serverUrl/expenses?week_commencing=$weekStr"
@@ -311,42 +312,10 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private suspend fun patchExpenseToServer(expenseId: String, amount: Double, description: String, date: String, offset: Int) = withContext(Dispatchers.IO) {
-        val jsonObject = JSONObject().apply {
-            put("amount", amount)
-            put("description", description)
-            put("date", date)
-        }
-        val jsonString = jsonObject.toString()
-        val body = jsonString.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val signature = hmacHex(sharedSecret, jsonString)
-        Log.d("PATCH_DEBUG","SIG: $signature")
-
-        Log.d("PATCH_DEBUG", "URL: $serverUrl/expenses/id/${expenseId}")
-
-        val req = Request.Builder()
-            .url("$serverUrl/expenses/id/${expenseId}")
-            .method("PATCH",body)
-            .addHeader("X-Signature", signature)
-            .build()
-
-        Log.d("PATCH_DEBUG","REQ: ${req.toString()}")
-
-        client.newCall(req).execute().use { resp ->
-            Log.d("PATCH_DEBUG","RESP: ${resp.code}")
-            Log.d("PATCH_DEBUG","RESP: ${resp.body?.string()}")
-            if (!resp.isSuccessful) {
-                val errorBody = resp.body?.string()
-                throw IOException("Failed to update expense: ${resp.code} - $errorBody")
-            }
-        }
-        refreshWeek(offset)
-    }
-
     fun deleteExpense(expenseId: String?, offset: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val jsonObject = org.json.JSONObject().apply {
+                val jsonObject = JSONObject().apply {
                     put("id", expenseId)
                 }
                 val jsonString = jsonObject.toString()
@@ -380,29 +349,6 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private suspend fun deleteExpenseToServer(expenseId: String, offset: Int) = withContext(Dispatchers.IO) {
-        val jsonObject = JSONObject().apply {
-            put("id", expenseId)
-        }
-        val jsonString = jsonObject.toString()
-        val body = jsonString.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val signature = hmacHex(sharedSecret, jsonString)
-
-        val req = Request.Builder()
-            .url("$serverUrl/expenses/id/$expenseId")
-            .delete(body)
-            .addHeader("X-Signature",signature)
-            .build()
-
-        client.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) {
-                val errorBody = resp.body?.string()
-                throw IOException("Failed to delete expense: ${resp.code} - $errorBody")
-            }
-        }
-        refreshWeek(offset)
-    }
-
 
     private fun calculateWeeklyTotal(list: List<Expense>): Double {
         val today = LocalDate.now()
@@ -416,13 +362,11 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
                     sum += e.amount
                 }
             } catch (ex: Exception) {
-                println("Warning: Could not parse date for expense: ${e.date}")
+                println("Warning: Could not parse date for expense: ${e.date} (${ex.message})")
             }
         }
         return sum
     }
-
-
     private fun hmacHex(secret: String, data: String): String {
         try {
             val secretKey = SecretKeySpec(secret.toByteArray(StandardCharsets.UTF_8), "HmacSHA256")
@@ -434,9 +378,5 @@ class ExpenseViewModel(app: Application) : AndroidViewModel(app) {
             // It's better to throw or handle this more gracefully
             throw RuntimeException("Failed to generate HMAC signature", e)
         }
-    }
-
-    fun consumeToastMessage() {
-        _toastMessage.value = null
     }
 }

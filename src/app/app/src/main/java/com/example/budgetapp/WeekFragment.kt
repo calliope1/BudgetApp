@@ -67,13 +67,6 @@ class WeekFragment : Fragment() {
                                 Toast.makeText(requireContext(), "Cannot delete: missing id", Toast.LENGTH_SHORT).show()
                                 return@setPositiveButton
                             }
-//                            lifecycleScope.launch {
-//                                try {
-//                                    vm.deleteExpense(id, offset)
-//                                } catch (e: Exception) {
-//                                    Toast.makeText(requireContext(), "Delete failed: ${e.message}", Toast.LENGTH_LONG).show()
-//                                }
-//                            }
                             vm.deleteExpense(id, offset)
                             Toast.makeText(requireContext(), "Deleting...", Toast.LENGTH_SHORT).show()
                         }

@@ -1,5 +1,6 @@
 package com.example.budgetapp.settings
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -39,5 +40,9 @@ class SettingsActivity : AppCompatActivity() {
         btnCancel.setOnClickListener {
             finish()
         }
+    }
+    override fun finish() {
+        setResult(RESULT_OK)
+        super.finish()
     }
 }

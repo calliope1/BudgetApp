@@ -18,4 +18,5 @@
     <string name="refresh">Actualiser</string>
     <string name="week_range">%1$s—%2$s</string>
     <string name="settings">Paramètres</string>
+    <string name="week">Semaine</string>
 </resources>
