@@ -3,9 +3,9 @@ This is a simple server-based budgeting app. The app (`/src/app`) is an Android 
 # App
 The app is quite intuitive, but you will need to build it from the Kotlin files to obtain an APK. The apk file found in this repo (`/src/apk/app.apk`) will compile, but it communicates to `http://127.0.0.1:5000` with secret `my-very-secret-key`, so it will only work on a local network server using that secret.
 
-<div align="center">
-  <img src="https://cr638.user.srcf.net/files/budgetapp/budget_app_bordered.jpg" alt="Budget App main screen" width=300>
-</div>
+![Budget App main screen, add expense dialogue, and inter-week swiping UI](https://github.com/user-attachments/assets/0f206248-3904-4f11-ab8d-88b89f5b1bde)
+
+There is an [Infinite Tape](https://en.wikipedia.org/wiki/Turing_machine) of weeks (starting Monday) that each total all of the expenses for their respective weeks and subtract that from the weekly budget. Swiping left or right will move to other weeks, and pressing the refresh button/pulling down will refresh the week that you're looking at, as will adding, editing, or deleting expenses. The app also (mostly) supports French (France).
 
 ## Building
 Be sure to create a `local.properties` file with the following:
@@ -29,6 +29,7 @@ This app was built extremely quickly with heavy help from AI (I have no previous
 * Additional languages
 * Editing server url
 * Editing shared secret
+
 These shouldn't be hard to implement, but I'm fairly happy with where the project is at for the moment, so I won't be adding these features any time soon. The only major update that I would consider is editing the server and app so that expenses are loaded per day, and then making it so that the app only loads expenses within a given week (swapping to different weeks by swiping left/right). In particular, the former would allow me to distribute a pre-compiled APK.
 
 # Server
